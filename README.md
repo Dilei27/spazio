@@ -1,6 +1,10 @@
 # Spazio
 
+[![CI](https://github.com/fernandomagno/spazio/actions/workflows/ci.yml/badge.svg)](https://github.com/fernandomagno/spazio/actions/workflows/ci.yml)
+
 Aplicação web de portaria para consulta e gerenciamento de moradores, veículos e movimentações de entrada e saída. O projeto usa somente recursos nativos do Node.js no backend e HTML, CSS e JavaScript no frontend.
+
+> **Aplicação:** o projeto ainda não possui uma URL pública de hospedagem. Para abrir localmente, siga [Rodando localmente](#rodando-localmente). O badge acima leva ao workflow da GitHub Actions, que valida o projeto automaticamente.
 
 ## Requisitos
 
