@@ -4,11 +4,16 @@ const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
 
 const PORTA = Number(process.env.PORT) || 3000;
-const PASTA = __dirname;
+const RAIZ = path.resolve(__dirname, "..");
+const PUBLICO = path.join(RAIZ, "frontend");
+const DADOS = path.join(RAIZ, "data");
 const TIPOS = ["Proprietário", "Locatário", "Outros"];
 const VEICULOS = ["Carro", "Moto"];
 
-const db = new DatabaseSync(path.join(PASTA, "moradores.db"));
+const caminhoBanco = path.join(DADOS, "moradores.db");
+const bancoAnterior = path.join(RAIZ, "moradores.db");
+if (!fs.existsSync(caminhoBanco) && fs.existsSync(bancoAnterior)) fs.copyFileSync(bancoAnterior, caminhoBanco);
+const db = new DatabaseSync(caminhoBanco);
 const ESTRUTURA = `(
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     condominio   TEXT,
@@ -279,12 +284,11 @@ function arquivoEstatico(req, res) {
     res.writeHead(400);
     return res.end("Endereço inválido");
   }
-  const caminhos = [path.resolve(PASTA, nome)];
-  if (nome.startsWith("v1/")) caminhos.push(path.resolve(PASTA, nome.slice(3)));
+  const caminhos = [path.resolve(PUBLICO, nome)];
   const tipo = MIME[path.extname(caminhos[0])];
 
   // Impede acesso fora da pasta e a arquivos que não sejam do site (ex.: moradores.db)
-  if (!tipo || caminhos.some(caminho => !caminho.startsWith(PASTA + path.sep) || caminho === __filename)) {
+  if (!tipo || caminhos.some(caminho => !caminho.startsWith(PUBLICO + path.sep) || caminho === __filename)) {
     res.writeHead(404);
     return res.end("Não encontrado");
   }

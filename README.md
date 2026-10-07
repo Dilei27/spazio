@@ -34,7 +34,7 @@ A versão precisa ser `22.13.0` ou superior.
 npm start
 ```
 
-Por padrão, a aplicação ficará disponível em <http://localhost:3000>. O arquivo `moradores.db` será criado automaticamente na raiz na primeira execução e está ignorado pelo Git.
+Por padrão, a aplicação ficará disponível em <http://localhost:3000>. O arquivo `data/moradores.db` será criado automaticamente na primeira execução e está ignorado pelo Git.
 
 Para usar outra porta:
 
@@ -66,63 +66,53 @@ Para parar o servidor, use `Ctrl+C` no terminal.
 
 ```text
 spazio/
-├── server.js                    # Servidor HTTP, rotas, validações e SQLite
-├── package.json                 # Metadados e comando npm start
-├── moradores.json               # Fixture anonimizada usada pela validação da CI
+├── backend/
+│   └── server.js                # HTTP, rotas, validações e SQLite
+├── frontend/
+│   └── v1/                      # Páginas, scripts e estilos da interface
+├── data/
+│   └── fixtures/
+│       └── moradores.json       # Fixture anonimizada usada pela CI
+├── .github/workflows/ci.yml     # Validação de sintaxe e smoke test
 ├── .gitignore                   # Ignora o banco SQLite local
-├── .github/
-│   └── workflows/
-│       └── ci.yml               # Validação de sintaxe e smoke test
-├── index.html                   # Tela de busca (servida em /v1/)
-├── script.js                    # Lógica da busca
-├── cadastro-moradores.html      # Tela de cadastro
-├── cadastro.js                  # Lógica do cadastro
-├── editar-moradores.html        # Tela de edição
-├── edicao.js                    # Lógica da edição
-├── detalhes-moradores.html      # Tabela de detalhes
-├── inativar-moradores.html      # Tela de inativação
-├── inativacao.js                # Lógica de inativação
-├── movimentacao-veiculos.html   # Tela de movimentações
-├── movimentacao-veiculos.js     # Lógica de movimentações
-├── atualizacao-cadastro.html     # Relatório cadastral
-├── atualizacao-cadastro.js      # Lógica do relatório
-├── morador.html                 # Detalhes de um apartamento
-├── morador.js                   # Lógica dos detalhes do apartamento
-└── style.css                    # Estilos compartilhados
+├── package.json                 # Metadados e comando npm start
+└── README.md                    # Documentação do projeto
 ```
 
-Os arquivos HTML, JavaScript e CSS ficam na raiz por compatibilidade com a estrutura atual. O servidor os publica com a versão virtual `/v1`; não existe uma pasta física `v1/`.
+O frontend está agrupado em `frontend/v1/`, acompanhando a versão pública da interface. O servidor publica essa pasta em `/v1`; o backend e os dados de teste ficam separados do código da interface.
 
 ## Arquitetura
 
 ```mermaid
 flowchart LR
-    U[Usuário] --> P[Frontend HTML/CSS/JS\nrotas /v1]
-    P --> S[server.js\nNode HTTP]
+    U[Usuário] --> P[frontend/v1\nHTML/CSS/JS]
+    P --> S[backend/server.js\nNode HTTP]
     S --> R{Roteamento}
     R --> E[Arquivos estáticos\nHTML, CSS e JS]
     R --> A[API de moradores\n/api/moradores]
     R --> V[API v1\n/api/v1/moradores]
     R --> M[API de movimentações\n/api/v1/movimentacoes]
-    A --> D[(moradores.db\nSQLite)]
+    A --> D[(data/moradores.db\nSQLite)]
     V --> D
     M --> D
     D --> T1[moradores]
     D --> T2[veiculos]
     D --> T3[movimentacoes_veiculos]
     C[GitHub Actions\nci.yml] --> S
-    C --> F[moradores.json\nfixture de teste]
+    C --> F[data/fixtures/moradores.json\nfixture de teste]
 ```
 
 ### Persistência
 
-O banco é criado e atualizado pelo `server.js` usando SQLite:
+O banco é criado e atualizado pelo `backend/server.js` usando SQLite:
 
 - `moradores`: dados cadastrais e status ativo/inativo.
 - `veiculos`: veículos vinculados aos moradores.
 - `movimentacoes_veiculos`: histórico das entradas e saídas.
 
-O banco local não deve ser versionado. Para começar com uma base vazia, pare o servidor e remova `moradores.db` e os arquivos auxiliares `moradores.db-*`.
+O banco local não deve ser versionado. Para começar com uma base vazia, pare o servidor e remova `data/moradores.db` e os arquivos auxiliares `data/moradores.db-*`.
+
+Na primeira execução após esta reorganização, se existir um `moradores.db` antigo na raiz, ele será copiado automaticamente para `data/moradores.db`.
 
 ## Rotas principais
 
@@ -158,10 +148,10 @@ As URLs antigas `/` e `/morador/{apto}` redirecionam para `/v1`.
 Para executar localmente a mesma verificação básica de sintaxe dos arquivos JavaScript:
 
 ```bash
-for file in *.js; do node --check "$file"; done
+while IFS= read -r -d '' file; do node --check "$file"; done < <(find backend frontend -type f -name '*.js' -print0)
 ```
 
-O workflow em `.github/workflows/ci.yml` executa a validação de sintaxe e um smoke test que inicia o servidor, cadastra a fixture `moradores.json`, testa a inativação e verifica as rotas principais.
+O workflow em `.github/workflows/ci.yml` executa a validação de sintaxe e um smoke test que inicia o servidor, cadastra a fixture `data/fixtures/moradores.json`, testa a inativação e verifica as rotas principais.
 
 ## Observações
 
