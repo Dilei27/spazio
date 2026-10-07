@@ -1,10 +1,11 @@
 # Spazio
 
+[![Abrir aplicação](https://img.shields.io/badge/Abrir%20aplica%C3%A7%C3%A3o-GitHub%20Pages-2563eb?style=for-the-badge)](https://fernandomagno.github.io/spazio/)
 [![CI](https://github.com/fernandomagno/spazio/actions/workflows/ci.yml/badge.svg)](https://github.com/fernandomagno/spazio/actions/workflows/ci.yml)
 
 Aplicação web de portaria para consulta e gerenciamento de moradores, veículos e movimentações de entrada e saída. O projeto usa somente recursos nativos do Node.js no backend e HTML, CSS e JavaScript no frontend.
 
-> **Aplicação:** o projeto ainda não possui uma URL pública de hospedagem. Para abrir localmente, siga [Rodando localmente](#rodando-localmente). O badge acima leva ao workflow da GitHub Actions, que valida o projeto automaticamente.
+> **Acesso público:** a interface pode ser aberta em [GitHub Pages](https://fernandomagno.github.io/spazio/). Como o GitHub Pages não executa Node.js, as operações que dependem da API e do SQLite funcionam com o backend local, seguindo [Rodando localmente](#rodando-localmente), ou após hospedar o backend em um serviço próprio.
 
 ## Requisitos
 
