@@ -16,10 +16,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            /*.html
-            /*.js
-            /*.css
-            /moradores.json
+            /backend
+            /frontend
+            /data/fixtures
             /package.json
           sparse-checkout-cone-mode: false
 
@@ -32,13 +31,14 @@ jobs:
         run: |
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find . -type f -name '*.js' -not -path './node_modules/*' -print0)
+          done < <(find backend frontend -type f -name '*.js' -print0)
 
       - name: Smoke test server
         run: |
           test_dir="$(mktemp -d)"
-          cp *.html *.js *.css "$test_dir/"
-          PORT=3000 node "$test_dir/server.js" &
+          cp -R backend frontend "$test_dir/"
+          mkdir -p "$test_dir/data"
+          PORT=3000 node "$test_dir/backend/server.js" &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true; rm -rf "$test_dir"' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 --retry-max-time 15 -fsS http://127.0.0.1:3000/api/v1/moradores > /dev/null
@@ -46,7 +46,7 @@ jobs:
           const fs = require('node:fs');
 
           async function main() {
-            const fixture = JSON.parse(fs.readFileSync('moradores.json', 'utf8'));
+            const fixture = JSON.parse(fs.readFileSync('data/fixtures/moradores.json', 'utf8'));
             const baseUrl = 'http://127.0.0.1:3000';
 
             for (const residente of fixture) {

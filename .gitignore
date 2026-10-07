@@ -1,3 +1,6 @@
+/data/moradores.db
+/data/moradores.db-*
+/data/moradores.backup.db
 /moradores.db
 /moradores.db-*
 /moradores.backup.db
